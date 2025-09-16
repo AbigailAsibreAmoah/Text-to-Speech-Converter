@@ -1,0 +1,38 @@
+# Terraform
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/*.tfvars
+**/*.tfplan
+**/.terraform.lock.hcl
+**/terraform-provider-*
+**/*.exe
+
+# AWS
+.aws/
+*.pem
+*.key
+
+# Node.js
+**/node_modules/
+**/build/
+**/dist/
+**/.env
+**/.env.local
+**/.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+*.log
+
+# Sensitive files
+**/secrets/
+**/*secret*
+**/*password*

@@ -1,0 +1,13 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+
+terraform-provider-aws_v6.13.0_x5.exe

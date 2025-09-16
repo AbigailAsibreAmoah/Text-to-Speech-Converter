@@ -1,0 +1,32 @@
+# Terraform files
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfplan
+.terraform.lock.hcl
+*.exe
+*.zip
+terraform-provider-aws_v6.13.0_x5.exe
+
+
+.terraform/
+
+# Lambda deployment packages
+*.zip
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# AWS
+.aws/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
