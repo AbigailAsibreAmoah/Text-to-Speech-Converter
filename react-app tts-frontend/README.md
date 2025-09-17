@@ -4,10 +4,12 @@ A modern React application for converting text to speech with multi-language sup
 
 ## Features
 
-- 🎨 **Modern UI**: Clean, responsive design with gradient backgrounds
-- 📝 **Text Input**: Large textarea for text entry
-- 🎭 **Voice Selection**: Multiple voice options per language
-- 🌍 **Language Support**: English, French, German, Korean
+- 🎨 **Modern UI**: Clean, responsive design with animated spiral backgrounds and flag elements
+- 📝 **Text Input**: Large textarea with real-time character counter (2500 limit)
+- 🎭 **Voice Selection**: Gender-specific voices with country flags (🇺🇸🇬🇧🇫🇷🇩🇪🇰🇷)
+- 🌍 **Language Support**: English, French, German, Korean with automatic translation
+- ⚡ **Speed Control**: Adjustable playback speed (0.25x to 2.0x)
+- 💾 **Download & Share**: Save MP3 files or share via native device sharing
 - 🔄 **Real-time Translation**: Shows translated text before speech generation
 - 🎵 **Audio Playback**: Built-in audio player with controls
 - 📱 **Mobile Responsive**: Works on all device sizes
@@ -60,7 +62,7 @@ The frontend communicates with the backend API:
 const response = await fetch(API_ENDPOINT, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ text, voice, language })
+  body: JSON.stringify({ text, voice, language, speed })
 });
 ```
 
@@ -134,10 +136,11 @@ const API_ENDPOINT = "https://your-api-gateway-url/prod/speak";
 
 ### Voice Selection
 
-- **English**: Joanna (Female), Matthew (Male), Amy (British Female), Brian (British Male)
-- **French**: Celine (Female)
-- **German**: Marlene (Female)
-- **Korean**: Seoyeon (Female)
+- **🇺🇸 English (US)**: Joanna (Female), Matthew (Male)
+- **🇬🇧 English (UK)**: Amy (Female), Brian (Male)
+- **🇫🇷 French**: Celine (Female)
+- **🇩🇪 German**: Marlene (Female)
+- **🇰🇷 Korean**: Seoyeon (Female)
 
 ### Language Processing
 
@@ -154,23 +157,28 @@ const API_ENDPOINT = "https://your-api-gateway-url/prod/speak";
 - User-friendly error messages
 - Console logging for debugging
 
-## Customization
+## Current Features
 
-### Styling
+### UI Enhancements
 
-Modify `App.css` to customize:
-- Color scheme
-- Typography
-- Layout
-- Animations
+- **Animated Background**: Subtle rotating spirals and flag patterns
+- **Blue Theme**: Consistent blue color scheme throughout
+- **Character Counter**: Real-time character count with 2500 limit
+- **Flag Icons**: Country flags for easy language/voice identification
+
+### Audio Features
+
+- **Speed Control**: 0.25x, 0.5x, 1.0x, 1.5x, 2.0x playback speeds
+- **Download**: Save generated audio as MP3 files
+- **Share**: Native device sharing for audio files
+- **SSML Support**: Enhanced voice synthesis with markup language
 
 ### Functionality
 
-Extend `App.js` to add:
-- More languages
-- Additional voice options
-- Audio download feature
-- Text-to-speech history
+- **Translation Display**: Shows translated text before audio generation
+- **Error Handling**: Comprehensive error handling and user feedback
+- **Responsive Design**: Mobile-first approach with touch-friendly controls
+- **Performance Optimized**: Efficient audio processing and state management
 
 ## Performance
 

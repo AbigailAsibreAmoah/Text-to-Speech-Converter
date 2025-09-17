@@ -6,6 +6,100 @@ body {
   background: linear-gradient(135deg, #f0f7ff 0%, #e1efff 100%);
   min-height: 100vh;
   color: #1e293b;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '🇺🇸 🇫🇷 🇩🇪 🇰🇷 🇺🇸 🇫🇷 🇩🇪 🇰🇷 🇺🇸 🇫🇷 🇩🇪 🇰🇷';
+  position: fixed;
+  top: 10%;
+  left: -10%;
+  font-size: 60px;
+  opacity: 0.08;
+  z-index: 0;
+  pointer-events: none;
+  transform: rotate(-15deg);
+  letter-spacing: 40px;
+  line-height: 120px;
+  white-space: nowrap;
+}
+
+body::after {
+  content: '🇰🇷 🇩🇪 🇫🇷 🇺🇸 🇰🇷 🇩🇪 🇫🇷 🇺🇸 🇰🇷 🇩🇪 🇫🇷 🇺🇸';
+  position: fixed;
+  bottom: 10%;
+  right: -10%;
+  font-size: 60px;
+  opacity: 0.08;
+  z-index: 0;
+  pointer-events: none;
+  transform: rotate(15deg);
+  letter-spacing: 40px;
+  line-height: 120px;
+  white-space: nowrap;
+}
+
+.spiral-1, .spiral-2, .spiral-3, .spiral-4, .spiral-5 {
+  position: fixed;
+  border-radius: 50%;
+  border: 3px solid rgba(59, 130, 246, 0.06);
+  border-top-color: rgba(59, 130, 246, 0.12);
+  border-right-color: rgba(59, 130, 246, 0.09);
+  z-index: 0;
+  pointer-events: none;
+  animation: spiral-rotate 20s linear infinite;
+}
+
+.spiral-1 {
+  width: 200px;
+  height: 200px;
+  top: 15%;
+  left: 5%;
+  animation-duration: 25s;
+}
+
+.spiral-2 {
+  width: 150px;
+  height: 150px;
+  top: 60%;
+  right: 8%;
+  animation-duration: 30s;
+  animation-direction: reverse;
+}
+
+.spiral-3 {
+  width: 120px;
+  height: 120px;
+  bottom: 20%;
+  left: 15%;
+  animation-duration: 35s;
+}
+
+.spiral-4 {
+  width: 180px;
+  height: 180px;
+  top: 35%;
+  right: 25%;
+  animation-duration: 28s;
+  animation-direction: reverse;
+}
+
+.spiral-5 {
+  width: 100px;
+  height: 100px;
+  bottom: 40%;
+  right: 45%;
+  animation-duration: 32s;
+}
+
+@keyframes spiral-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .App {
@@ -21,6 +115,8 @@ body {
     0 0 0 1px rgba(255, 255, 255, 0.5);
   text-align: center;
   border: 1px solid rgba(59, 130, 246, 0.1);
+  position: relative;
+  z-index: 1;
 }
 
 h1 {
@@ -64,6 +160,17 @@ textarea:focus {
 textarea::placeholder {
   color: #94a3b8;
 }
+
+.word-counter {
+  font-size: 12px;
+  color: #64748b;
+  text-align: right;
+  margin-top: -20px;
+  margin-bottom: 20px;
+  font-weight: 400;
+}
+
+
 
 .controls {
   display: flex;
@@ -171,12 +278,98 @@ button:disabled {
   box-shadow: none;
 }
 
+.ssml-controls {
+  margin: 24px 0;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+}
+
+.ssml-controls h3 {
+  margin: 0 0 16px 0;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+
+
+.ssml-controls input[type="text"] {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.ssml-controls input[type="text"]:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.ssml-controls input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.2);
+}
+
+.ssml-controls label {
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #475569;
+  font-size: 14px;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
 .audio-player {
   margin-top: 28px;
   padding: 20px;
   background: rgba(248, 250, 252, 0.6);
   border-radius: 16px;
   border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.audio-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.audio-actions button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #1e40af;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.audio-actions button:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border-color: #1d4ed8;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.audio-actions button svg {
+  transition: transform 0.3s ease;
+}
+
+.audio-actions button:hover svg {
+  transform: scale(1.1);
 }
 
 /* Responsive design */

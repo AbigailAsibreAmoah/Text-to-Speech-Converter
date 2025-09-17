@@ -7,6 +7,61 @@ function App() {
   const [language, setLanguage] = useState("en-US");
   const [audioUrl, setAudioUrl] = useState("");
   const [translatedText, setTranslatedText] = useState("");
+  
+  // SSML Controls
+  const [speed, setSpeed] = useState("1.0");
+  const [audioBlob, setAudioBlob] = useState(null);
+
+  // Add spiral elements to DOM
+  React.useEffect(() => {
+    const spirals = ['spiral-1', 'spiral-2', 'spiral-3', 'spiral-4', 'spiral-5'];
+    spirals.forEach(className => {
+      if (!document.querySelector(`.${className}`)) {
+        const spiral = document.createElement('div');
+        spiral.className = className;
+        document.body.appendChild(spiral);
+      }
+    });
+  }, []);
+
+  const handleDownload = () => {
+    if (!audioBlob) return;
+    
+    const url = URL.createObjectURL(audioBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `speech-${Date.now()}.mp3`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleShare = async () => {
+    if (!audioBlob) return;
+    
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([audioBlob], 'speech.mp3', { type: 'audio/mpeg' })] })) {
+      try {
+        await navigator.share({
+          title: 'Generated Speech',
+          text: 'Check out this text-to-speech audio!',
+          files: [new File([audioBlob], 'speech.mp3', { type: 'audio/mpeg' })]
+        });
+      } catch (err) {
+        console.log('Share cancelled or failed:', err);
+      }
+    } else {
+      // Fallback: copy audio URL to clipboard
+      const url = URL.createObjectURL(audioBlob);
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Audio link copied to clipboard!');
+      } catch (err) {
+        alert('Sharing not supported on this device. Use the download button instead.');
+      }
+      URL.revokeObjectURL(url);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,7 +78,12 @@ function App() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ text, voice, language }),
+          body: JSON.stringify({ 
+            text, 
+            voice, 
+            language,
+            speed
+          }),
         }
       );
       
@@ -51,6 +111,7 @@ function App() {
         console.log('Blob size:', blob.size);
         const url = URL.createObjectURL(blob);
         setAudioUrl(url);
+        setAudioBlob(blob);
         setTranslatedText(responseData.translatedText);
         
         // Auto-play the audio
@@ -80,15 +141,18 @@ function App() {
           value={text}
           onChange={(e) => setText(e.target.value)}
         ></textarea>
+        <div className="word-counter">
+          {text.length} / 2500 characters
+        </div>
 
         <div className="controls">
           <div>
             <label>Voice:</label>
             <select value={voice} onChange={(e) => setVoice(e.target.value)}>
-              <option value="Joanna">Female - American</option>
-              <option value="Matthew">Male - American</option>
-              <option value="Amy">Female - British</option>
-              <option value="Brian">Male - British</option>
+              <option value="Joanna">🇺🇸 Joanna (Female)</option>
+              <option value="Matthew">🇺🇸 Matthew (Male)</option>
+              <option value="Amy">🇬🇧 Amy (Female)</option>
+              <option value="Brian">🇬🇧 Brian (Male)</option>
             </select>
           </div>
 
@@ -98,11 +162,28 @@ function App() {
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
             >
-              <option value="en-US">English - US</option>
-              <option value="fr-FR">French</option>
-              <option value="de-DE">German</option>
-              <option value="ko-KR">Korean</option>
+              <option value="en-US">🇺🇸 English (US)</option>
+              <option value="fr-FR">🇫🇷 French</option>
+              <option value="de-DE">🇩🇪 German</option>
+              <option value="ko-KR">🇰🇷 Korean</option>
             </select>
+          </div>
+        </div>
+
+        <div className="ssml-controls">
+          <h3>Voice Settings</h3>
+          
+          <div className="controls">
+            <div>
+              <label>Speed:</label>
+              <select value={speed} onChange={(e) => setSpeed(e.target.value)}>
+                <option value="0.25">0.25x</option>
+                <option value="0.5">0.5x</option>
+                <option value="1.0">1.0x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2.0">2.0x</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -119,6 +200,21 @@ function App() {
       {audioUrl && (
         <div className="audio-player">
           <audio controls src={audioUrl}></audio>
+          <div className="audio-actions">
+            <button type="button" className="download-btn" onClick={handleDownload}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                <path d="M12,11L16,15H13V19H11V15H8L12,11Z"/>
+              </svg>
+              Download
+            </button>
+            <button type="button" className="share-btn" onClick={handleShare}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18,16.08C17.24,16.08 16.56,16.38 16.04,16.85L8.91,12.7C8.96,12.47 9,12.24 9,12C9,11.76 8.96,11.53 8.91,11.3L15.96,7.19C16.5,7.69 17.21,8 18,8A3,3 0 0,0 21,5A3,3 0 0,0 18,2A3,3 0 0,0 15,5C15,5.24 15.04,5.47 15.09,5.7L8.04,9.81C7.5,9.31 6.79,9 6,9A3,3 0 0,0 3,12A3,3 0 0,0 6,15C6.79,15 7.5,14.69 8.04,14.19L15.16,18.34C15.11,18.55 15.08,18.77 15.08,19C15.08,20.61 16.39,21.91 18,21.91C19.61,21.91 20.92,20.61 20.92,19A2.92,2.92 0 0,0 18,16.08Z"/>
+              </svg>
+              Share
+            </button>
+          </div>
         </div>
       )}
     </div>
