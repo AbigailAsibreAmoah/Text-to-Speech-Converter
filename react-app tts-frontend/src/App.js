@@ -11,6 +11,8 @@ function App() {
   // SSML Controls
   const [speed, setSpeed] = useState("1.0");
   const [audioBlob, setAudioBlob] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [activeCountry, setActiveCountry] = useState('us');
 
   // Add spiral elements to DOM
   React.useEffect(() => {
@@ -62,6 +64,8 @@ function App() {
       URL.revokeObjectURL(url);
     }
   };
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -118,7 +122,10 @@ function App() {
         setTimeout(() => {
           const audio = document.querySelector('audio');
           if (audio) {
+            setIsPlaying(true);
             audio.play().catch(e => console.log('Autoplay blocked:', e));
+            audio.onended = () => setIsPlaying(false);
+            audio.onpause = () => setIsPlaying(false);
           }
         }, 100);
       } catch (error) {
@@ -133,6 +140,31 @@ function App() {
   };
 
   return (
+    <>
+      <div className="sound-waves">
+        <div className={`wave ${isPlaying ? 'playing' : ''}`}></div>
+        <div className={`wave ${isPlaying ? 'playing' : ''}`}></div>
+        <div className={`wave ${isPlaying ? 'playing' : ''}`}></div>
+        <div className={`wave ${isPlaying ? 'playing' : ''}`}></div>
+      </div>
+      
+      <div className="world-map">
+        <div className="connection-line line-us-fr">
+          <div className="travel-dot" style={{animationDelay: '0s'}}></div>
+        </div>
+        <div className="connection-line line-fr-de">
+          <div className="travel-dot" style={{animationDelay: '2s'}}></div>
+        </div>
+        <div className="connection-line line-de-kr">
+          <div className="travel-dot" style={{animationDelay: '4s'}}></div>
+        </div>
+        
+        <div className={`country-marker marker-us ${activeCountry === 'us' ? 'active' : ''}`}></div>
+        <div className={`country-marker marker-fr ${activeCountry === 'fr' ? 'active' : ''}`}></div>
+        <div className={`country-marker marker-de ${activeCountry === 'de' ? 'active' : ''}`}></div>
+        <div className={`country-marker marker-kr ${activeCountry === 'kr' ? 'active' : ''}`}></div>
+      </div>
+
     <div className="App">
       <h1>Text-to-Speech Converter</h1>
       <form onSubmit={handleSubmit}>
@@ -160,7 +192,16 @@ function App() {
             <label>Language:</label>
             <select
               value={language}
-              onChange={(e) => setLanguage(e.target.value)}
+              onChange={(e) => {
+                setLanguage(e.target.value);
+                const countryMap = {
+                  'en-US': 'us',
+                  'fr-FR': 'fr', 
+                  'de-DE': 'de',
+                  'ko-KR': 'kr'
+                };
+                setActiveCountry(countryMap[e.target.value]);
+              }}
             >
               <option value="en-US">🇺🇸 English (US)</option>
               <option value="fr-FR">🇫🇷 French</option>
@@ -218,6 +259,7 @@ function App() {
         </div>
       )}
     </div>
+    </>
   );
 }
 

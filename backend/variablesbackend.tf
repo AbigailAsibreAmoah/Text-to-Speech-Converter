@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region to deploy resources in"
   type        = string
-  default     = "us-east-1"  # Optional default
+  default     = "us-east-1"
 }
 
 variable "audio_s3_bucket_name" {
@@ -28,7 +28,7 @@ variable "lambda_runtime" {
   default     = "python3.11"
 }
 
-# API Gateway variables
+
 variable "api_name" {
   description = "Name of the API Gateway"
   type        = string
