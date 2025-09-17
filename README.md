@@ -4,12 +4,15 @@ A serverless text-to-speech application built with AWS services that converts En
 
 ## Features
 
-- 🎤 **Text-to-Speech**: Convert text to natural-sounding speech using AWS Polly
-- 🌍 **Multi-language Support**: English, French, German, and Korean
+- 🎤 **Text-to-Speech**: Convert text to natural-sounding speech using AWS Polly with SSML support
+- 🌍 **Multi-language Support**: English (🇺🇸🇬🇧), French (🇫🇷), German (🇩🇪), and Korean (🇰🇷)
 - 🔄 **Real-time Translation**: Automatic translation using AWS Translate
-- 🎭 **Multiple Voices**: Different voice options for each language
-- 📱 **Responsive Design**: Modern, mobile-friendly interface
-- ☁️ **Serverless Architecture**: Fully serverless using AWS services
+- 🎭 **Multiple Voices**: Gender-specific voices with country flags for easy identification
+- ⚡ **Speed Control**: Adjustable playback speed (0.25x to 2.0x)
+- 💾 **Download & Share**: Save audio files or share via native device sharing
+- 📊 **Character Counter**: Real-time character count with 2500 character limit
+- 📱 **Responsive Design**: Modern, mobile-friendly interface with animated background
+- ☁️ **Serverless Architecture**: Fully serverless using AWS services (~$0.11/month)
 
 ## Architecture
 
@@ -71,21 +74,37 @@ Text-to-speech/
 
 ## Usage
 
-1. Enter English text in the textarea
-2. Select desired voice and target language
-3. Click "Convert to Speech"
-4. View translation (if applicable) and play generated audio
+1. Enter English text in the textarea (up to 2500 characters)
+2. Select desired voice with gender and country indicators
+3. Choose target language for translation
+4. Adjust speech speed (0.25x - 2.0x)
+5. Click "Convert to Speech"
+6. View translation and play generated audio
+7. Download MP3 file or share via device sharing
 
-## Supported Languages
+## Supported Languages & Voices
 
-- **English (US)**: Joanna, Matthew, Amy, Brian
-- **French**: Celine
-- **German**: Marlene  
-- **Korean**: Seoyeon
+- **🇺🇸 English (US)**: Joanna (Female), Matthew (Male)
+- **🇬🇧 English (UK)**: Amy (Female), Brian (Male)
+- **🇫🇷 French**: Celine (Female)
+- **🇩🇪 German**: Marlene (Female)
+- **🇰🇷 Korean**: Seoyeon (Female)
 
 ## API Endpoints
 
-- `POST /prod/speak` - Convert text to speech with translation
+- `POST /prod/speak` - Convert text to speech with translation and SSML support
+  - Parameters: `text`, `voice`, `language`, `speed`
+  - Returns: Base64 encoded MP3 audio + translation
+
+## Cost Efficiency
+
+**Monthly Cost Estimate: ~$0.11** (for 10K requests)
+- S3 Static Hosting: ~$0.02
+- CloudFront CDN: ~$0.01
+- API Gateway: ~$0.04
+- Lambda: ~$0.02
+- AWS Polly: ~$0.016
+- AWS Translate: ~$0.02
 
 ## Contributing
 
@@ -93,6 +112,14 @@ Text-to-speech/
 2. Create a feature branch
 3. Make your changes
 4. Submit a pull request
+
+## Technical Features
+
+- **SSML Support**: Speech Synthesis Markup Language for enhanced voice control
+- **Client-side Audio Processing**: Download/share functionality runs in browser
+- **Optimized Performance**: Single API call per conversion, minimal data transfer
+- **Global CDN**: CloudFront distribution for worldwide performance
+- **Auto-scaling**: Serverless architecture scales automatically
 
 ## License
 

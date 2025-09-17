@@ -1,27 +1,24 @@
-# Infrastructure (Production)
+# Backend Infrastructure (Production)
 
 This folder contains the production-ready Terraform infrastructure for the Text-to-Speech application.
 
 ## Architecture Components
 
 - **API Gateway**: RESTful API with CORS support
-- **Lambda Function**: Text processing, translation, and speech synthesis
-- **S3 Buckets**: Audio storage and frontend hosting
-- **CloudFront**: CDN for frontend delivery
-- **IAM Roles**: Security and permissions
+- **Lambda Function**: Text processing, translation, and speech synthesis with SSML
+- **IAM Roles**: Security and permissions for AWS services
+- **Cost-Optimized**: ~$0.11/month for moderate usage
 
 ## Files
 
-- `main.tf` - Main provider and S3 audio bucket
+- `mainbackend.tf` - Main provider configuration
 - `api.tf` - API Gateway configuration with CORS
 - `lambda.tf` - Lambda function and IAM roles
-- `s3.tf` - Frontend S3 bucket and website configuration
-- `cloudfront.tf` - CloudFront distribution
-- `iam.tf` - Additional IAM policies
-- `variables.tf` - Input variables
-- `outputs.tf` - Output values
-- `lambda_txt2speech.py` - Lambda function code
+- `variablesbackend.tf` - Input variables
+- `outputsbackend.tf` - Output values
+- `lambda_txt2speech.py` - Lambda function code with SSML support
 - `lambda_txt2speech.zip` - Lambda deployment package
+- `requirements.txt` - Python dependencies
 
 ## Deployment
 
@@ -79,12 +76,13 @@ The Lambda function handles:
 - Voice selection based on language
 - Base64 audio encoding for web delivery
 
-### Supported Languages
+### Supported Languages & Voices
 
-- English (en) → Joanna, Matthew, Amy, Brian
-- French (fr) → Celine
-- German (de) → Marlene
-- Korean (ko) → Seoyeon
+- **🇺🇸 English (US)**: Joanna (Female), Matthew (Male)
+- **🇬🇧 English (UK)**: Amy (Female), Brian (Male)
+- **🇫🇷 French**: Celine (Female)
+- **🇩🇪 German**: Marlene (Female)
+- **🇰🇷 Korean**: Seoyeon (Female)
 
 ## API Endpoints
 
@@ -97,7 +95,8 @@ Convert text to speech with optional translation.
 {
   "text": "Hello world",
   "voice": "Joanna",
-  "language": "fr-FR"
+  "language": "fr-FR",
+  "speed": "1.0"
 }
 ```
 
@@ -106,7 +105,11 @@ Convert text to speech with optional translation.
 {
   "audio": "base64-encoded-mp3-data",
   "translatedText": "Bonjour le monde",
-  "originalText": "Hello world"
+  "originalText": "Hello world",
+  "ssmlUsed": "<speak>Bonjour le monde</speak>",
+  "voiceSettings": {
+    "speed": "1.0"
+  }
 }
 ```
 

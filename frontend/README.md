@@ -1,10 +1,10 @@
-# Backend Infrastructure (Development)
+# Frontend Infrastructure (Development)
 
-This folder contains the initial development version of the Terraform infrastructure for the Text-to-Speech application.
+This folder contains the initial development version of the Terraform infrastructure for hosting the React frontend.
 
 ## Purpose
 
-This is the original backend infrastructure code used during development. The production-ready version is located in the `../end/` folder.
+This is the original frontend infrastructure code used during development. The production deployment now uses the backend infrastructure in the `../backend/` folder.
 
 ## Contents
 
@@ -16,13 +16,14 @@ This folder may contain:
 
 ## Status
 
-⚠️ **Development Version**: This infrastructure is for reference only. Use the `../end/` folder for production deployment.
+⚠️ **Development Version**: This infrastructure is for reference only. Use the `../backend/` folder for production deployment.
 
 ## Migration
 
-The infrastructure has been migrated and improved in the `../end/` folder with:
+The infrastructure has been consolidated in the `../backend/` folder with:
+- Combined backend and frontend infrastructure
 - Better CORS configuration
-- Optimized Lambda function
+- Optimized Lambda function with SSML support
 - Production-ready S3 and CloudFront setup
 - Enhanced security policies
 
@@ -30,7 +31,7 @@ The infrastructure has been migrated and improved in the `../end/` folder with:
 
 For active development and deployment, please use:
 ```bash
-cd ../end/
+cd ../backend/
 terraform init
 terraform apply
 ```
@@ -53,6 +54,6 @@ This folder serves as a reference for:
 
 ## Next Steps
 
-1. Review the production infrastructure in `../end/`
-2. Use the final version for deployment
+1. Review the production infrastructure in `../backend/`
+2. Use the consolidated version for deployment
 3. Refer to this folder for development history
