@@ -4,15 +4,15 @@ A serverless text-to-speech application built with AWS services that converts En
 
 ## Features
 
-- 🎤 **Text-to-Speech**: Convert text to natural-sounding speech using AWS Polly with SSML support
-- 🌍 **Multi-language Support**: English (🇺🇸🇬🇧), French (🇫🇷), German (🇩🇪), and Korean (🇰🇷)
-- 🔄 **Real-time Translation**: Automatic translation using AWS Translate
-- 🎭 **Multiple Voices**: Gender-specific voices with country flags for easy identification
-- ⚡ **Speed Control**: Adjustable playback speed (0.25x to 2.0x)
-- 💾 **Download & Share**: Save audio files or share via native device sharing
-- 📊 **Character Counter**: Real-time character count with 2500 character limit
-- 📱 **Responsive Design**: Modern, mobile-friendly interface with animated background
-- ☁️ **Serverless Architecture**: Fully serverless using AWS services (~$0.11/month)
+- **Text-to-Speech**: Convert text to natural-sounding speech using AWS Polly with SSML support
+- **Multi-language Support**: English (US/UK), French, German, and Korean
+- **Real-time Translation**: Automatic translation using AWS Translate
+- **Multiple Voices**: Gender-specific voices with country flags for easy identification
+- **Speed Control**: Adjustable playback speed (0.25x to 2.0x)
+- **Download & Share**: Save audio files or share via native device sharing
+- **Character Counter**: Real-time character count with 2500 character limit
+- **Responsive Design**: Modern, mobile-friendly interface with animated background
+- **Serverless Architecture**: Fully serverless using AWS services (~$0.11/month)
 
 ## Architecture
 
@@ -84,11 +84,11 @@ Text-to-speech/
 
 ## Supported Languages & Voices
 
-- **🇺🇸 English (US)**: Joanna (Female), Matthew (Male)
-- **🇬🇧 English (UK)**: Amy (Female), Brian (Male)
-- **🇫🇷 French**: Celine (Female)
-- **🇩🇪 German**: Marlene (Female)
-- **🇰🇷 Korean**: Seoyeon (Female)
+- **English (US)**: Joanna (Female), Matthew (Male)
+- **English (UK)**: Amy (Female), Brian (Male)
+- **French**: Celine (Female)
+- **German**: Marlene (Female)
+- **Korean**: Seoyeon (Female)
 
 ## API Endpoints
 
