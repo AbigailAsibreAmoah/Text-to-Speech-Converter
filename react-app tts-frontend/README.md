@@ -4,15 +4,15 @@ A modern React application for converting text to speech with multi-language sup
 
 ## Features
 
-- 🎨 **Modern UI**: Clean, responsive design with animated spiral backgrounds and flag elements
-- 📝 **Text Input**: Large textarea with real-time character counter (2500 limit)
-- 🎭 **Voice Selection**: Gender-specific voices with country flags (🇺🇸🇬🇧🇫🇷🇩🇪🇰🇷)
-- 🌍 **Language Support**: English, French, German, Korean with automatic translation
-- ⚡ **Speed Control**: Adjustable playback speed (0.25x to 2.0x)
-- 💾 **Download & Share**: Save MP3 files or share via native device sharing
-- 🔄 **Real-time Translation**: Shows translated text before speech generation
-- 🎵 **Audio Playback**: Built-in audio player with controls
-- 📱 **Mobile Responsive**: Works on all device sizes
+-  **Modern UI**: Clean, responsive design with animated spiral backgrounds and flag elements
+-  **Text Input**: Large textarea with real-time character counter (2500 limit)
+-  **Voice Selection**: Gender-specific voices with country flags (🇺🇸🇬🇧🇫🇷🇩🇪🇰🇷)
+-  **Language Support**: English, French, German, Korean with automatic translation
+-  **Speed Control**: Adjustable playback speed (0.25x to 2.0x)
+-  **Download & Share**: Save MP3 files or share via native device sharing
+-  **Real-time Translation**: Shows translated text before speech generation
+-  **Audio Playback**: Built-in audio player with controls
+-  **Mobile Responsive**: Works on all device sizes
 
 ## Technology Stack
 
