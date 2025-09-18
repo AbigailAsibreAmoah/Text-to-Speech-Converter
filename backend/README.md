@@ -4,7 +4,7 @@ This folder contains the production-ready Terraform infrastructure for the Text-
 
 ## Architecture Components
 
-- **API Gateway**: RESTful API with CORS support
+- **API Gateway**: REST API with CORS support
 - **Lambda Function**: Text processing, translation, and speech synthesis with SSML
 - **IAM Roles**: Security and permissions for AWS services
 - **Cost-Optimized**: ~$0.11/month for moderate usage
