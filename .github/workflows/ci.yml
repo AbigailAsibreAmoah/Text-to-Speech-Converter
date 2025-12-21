@@ -1,0 +1,134 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PYTEST_ADDOPTS: -q
+
+jobs:
+  backend:
+    name: Backend (Python) — lint & test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [3.11, 3.10]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          if [ -f backend/requirements.txt ]; then
+            python -m pip install --upgrade pip
+            pip install -r backend/requirements.txt
+          else
+            echo "No backend/requirements.txt found"
+          fi
+
+      - name: Lint (flake8)
+        if: always()
+        run: |
+          if python -c "import importlib.util,sys;print(importlib.util.find_spec('flake8') is not None)"; then
+            flake8 backend || exit 1
+          else
+            echo "flake8 not installed; skipping lint"
+          fi
+
+      - name: Run tests (pytest)
+        run: |
+          if [ -d backend/tests ] || ls backend | grep -E 'test|tests' >/dev/null 2>&1; then
+            python -m pip install pytest >/dev/null 2>&1
+            pytest backend
+          else
+            echo "No backend tests found; skipping"
+          fi
+
+      - name: Upload backend test artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-tests-${{ matrix.python }}
+          path: backend/test-results || .
+
+  frontend:
+    name: Frontend (Node) — lint, test & build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18]
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      - name: Install & build frontends
+        run: |
+          set -e
+          DIRS=("frontend" "react-app tts-frontend")
+          for d in "${DIRS[@]}"; do
+            if [ -f "$d/package.json" ]; then
+              echo "==> Processing $d"
+              pushd "$d"
+              npm ci
+              if npm run | grep -q " build"; then
+                npm run build --if-present
+              fi
+              if npm run | grep -q " lint"; then
+                npm run lint --if-present
+              fi
+              if npm run | grep -q " test"; then
+                npm test --if-present
+              fi
+              popd
+            else
+              echo "No package.json in $d"
+            fi
+          done
+
+      - name: Upload frontend builds
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-builds
+          path: |
+            frontend/build
+            react-app tts-frontend/build
+#         role-to-assume: arn:aws:iam::123456789012:role/github-actions-deploy
+#         aws-region: ${{ secrets.AWS_REGION }}
+#     - name: Deploy backend/frontend
+#       run: |
+#         # Implement deploy (aws lambda update-function-code / s3 sync / cloudfront create-invalidation)
+#         echo "Deploying..."
