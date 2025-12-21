@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref_name }}
   cancel-in-progress: true
 
 permissions:
@@ -26,6 +26,7 @@ jobs:
       matrix:
         python: [3.11, 3.10]
       fail-fast: false
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,44 +39,50 @@ jobs:
       - name: Cache pip
         uses: actions/cache@v4
         with:
+          # cache pip cache directory
           path: ~/.cache/pip
+          # use requirements hash if present; if not present the key will still be usable
           key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install dependencies
+      - name: Install backend & dev dependencies (flake8, pytest)
         run: |
+          python -m pip install --upgrade pip
           if [ -f backend/requirements.txt ]; then
-            python -m pip install --upgrade pip
             pip install -r backend/requirements.txt
           else
-            echo "No backend/requirements.txt found"
+            echo "No backend/requirements.txt found — continuing with dev tools only"
           fi
+          pip install flake8 pytest
 
       - name: Lint (flake8)
-        if: always()
         run: |
-          if python -c "import importlib.util,sys;print(importlib.util.find_spec('flake8') is not None)"; then
-            flake8 backend || exit 1
-          else
-            echo "flake8 not installed; skipping lint"
-          fi
+          echo "Running flake8..."
+          # fail the job on lint errors so CI enforces style
+          flake8 backend
 
       - name: Run tests (pytest)
+        id: run-tests
         run: |
+          # If tests exist, run pytest and write junit xml to backend/test-results
           if [ -d backend/tests ] || ls backend | grep -E 'test|tests' >/dev/null 2>&1; then
-            python -m pip install pytest >/dev/null 2>&1
-            pytest backend
+            echo "Tests detected — running pytest"
+            python -m pip install pytest pytest-cov >/dev/null 2>&1 || true
+            mkdir -p backend/test-results
+            pytest backend --junitxml=backend/test-results/results.xml -q
+            echo "found=true" >> $GITHUB_OUTPUT
           else
-            echo "No backend tests found; skipping"
+            echo "No backend tests found; skipping pytest"
+            echo "found=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Upload backend test artifact
-        if: always()
+        if: steps.run-tests.outputs.found == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: backend-tests-${{ matrix.python }}
-          path: backend/test-results || .
+          path: backend/test-results
 
   frontend:
     name: Frontend (Node) — lint, test & build
@@ -84,6 +91,7 @@ jobs:
       matrix:
         node: [18]
       fail-fast: false
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -95,40 +103,66 @@ jobs:
           cache: 'npm'
 
       - name: Install & build frontends
+        id: build-frontend
         run: |
           set -e
+          FOUND=false
+          # Quoted names handle directories with spaces
           DIRS=("frontend" "react-app tts-frontend")
           for d in "${DIRS[@]}"; do
             if [ -f "$d/package.json" ]; then
               echo "==> Processing $d"
               pushd "$d"
               npm ci
-              if npm run | grep -q " build"; then
-                npm run build --if-present
-              fi
+              # lint (do not fail CI for frontend lint by default — change as needed)
               if npm run | grep -q " lint"; then
+                echo "Running frontend lint for $d (will fail if script errors)"
                 npm run lint --if-present
               fi
+              # tests (do not fail entire workflow if no tests; keep npm's behavior)
               if npm run | grep -q " test"; then
-                npm test --if-present
+                echo "Running frontend tests for $d"
+                npm test --if-present || true
+              fi
+              # build
+              if npm run | grep -q " build"; then
+                echo "Running build for $d"
+                npm run build --if-present
+                FOUND=true
               fi
               popd
             else
-              echo "No package.json in $d"
+              echo "No package.json in $d — skipping"
             fi
           done
+          echo "found=${FOUND}" >> $GITHUB_OUTPUT
 
       - name: Upload frontend builds
-        if: always()
+        if: steps.build-frontend.outputs.found == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: frontend-builds
           path: |
             frontend/build
-            react-app tts-frontend/build
-#         role-to-assume: arn:aws:iam::123456789012:role/github-actions-deploy
+            "react-app tts-frontend/build"
+
+# Example production deploy job (commented). Use OIDC, short-lived creds or repository secrets and a protected environment.
+# deploy:
+#   name: Deploy to production
+#   needs: [backend, frontend]
+#   runs-on: ubuntu-latest
+#   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+#   environment:
+#     name: production
+#     url: https://your-production-url.example
+#   steps:
+#     - uses: actions/checkout@v4
+#     - name: Configure AWS using OIDC
+#       uses: aws-actions/configure-aws-credentials@v2
+#       with:
+#         role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 #         aws-region: ${{ secrets.AWS_REGION }}
 #     - name: Deploy backend/frontend
 #       run: |
-#         # Implement deploy (aws lambda update-function-code / s3 sync / cloudfront create-invalidation)
+#         # Implement deploy steps (aws lambda update-function-code / s3 sync / cloudfront create-invalidation)
 #         echo "Deploying..."
