@@ -13,7 +13,6 @@ concurrency:
 
 permissions:
   contents: read
-  id-token: write
 
 env:
   PYTEST_ADDOPTS: -q
@@ -24,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [3.11, 3.10]
+        python: [3.10, 3.11]
       fail-fast: false
 
     steps:
@@ -39,114 +38,76 @@ jobs:
       - name: Cache pip
         uses: actions/cache@v4
         with:
-          # cache pip cache directory
           path: ~/.cache/pip
-          # use requirements hash if present; if not present the key will still be usable
           key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install backend & dev dependencies (flake8, pytest)
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           if [ -f backend/requirements.txt ]; then
             pip install -r backend/requirements.txt
-          else
-            echo "No backend/requirements.txt found — continuing with dev tools only"
           fi
-          pip install flake8 pytest
+          pip install flake8 pytest pytest-cov
 
-      - name: Lint (flake8)
-        run: |
-          echo "Running flake8..."
-          # fail the job on lint errors so CI enforces style
-          flake8 backend
+      - name: Lint backend
+        run: flake8 backend
 
-      - name: Run tests (pytest)
-        id: run-tests
+      - name: Run backend tests
         run: |
-          # If tests exist, run pytest and write junit xml to backend/test-results
-          if [ -d backend/tests ] || ls backend | grep -E 'test|tests' >/dev/null 2>&1; then
-            echo "Tests detected — running pytest"
-            python -m pip install pytest pytest-cov >/dev/null 2>&1 || true
+          if [ -d backend/tests ]; then
             mkdir -p backend/test-results
-            pytest backend --junitxml=backend/test-results/results.xml -q
-            echo "found=true" >> $GITHUB_OUTPUT
+            pytest backend --junitxml=backend/test-results/results.xml
           else
-            echo "No backend tests found; skipping pytest"
-            echo "found=false" >> $GITHUB_OUTPUT
+            echo "No backend tests found"
           fi
 
-      - name: Upload backend test artifact
-        if: steps.run-tests.outputs.found == 'true'
+      - name: Upload backend test results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: backend-tests-${{ matrix.python }}
           path: backend/test-results
+          if-no-files-found: ignore
 
   frontend:
-    name: Frontend (Node) — lint, test & build
+    name: Frontend (Angular) — lint, test & build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [18]
-      fail-fast: false
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node ${{ matrix.node }}
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
-          # remove cache option so setup-node won't error when no lockfile exists
+          node-version: 18
 
-      - name: Install & build frontends
-        id: build-frontend
+      - name: Install & build frontend
         run: |
-          set -e
-          FOUND=false
-          DIRS=("frontend" "react-app tts-frontend")
-          for d in "${DIRS[@]}"; do
-            if [ -f "$d/package.json" ]; then
-              echo "==> Processing $d"
-              pushd "$d"
-              if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ] || [ -f yarn.lock ]; then
-                echo "Lockfile found - using npm ci"
-                npm ci
-              else
-                echo "No lockfile found - using npm install (will generate package-lock.json locally)"
-                npm install --no-audit --no-fund
-              fi
-              # lint
-              if npm run | grep -q " lint"; then
-                npm run lint --if-present
-              fi
-              # test (do not fail entire workflow if frontend tests are absent)
-              if npm run | grep -q " test"; then
-                npm test --if-present || true
-              fi
-              # build
-              if npm run | grep -q " build"; then
-                npm run build --if-present
-                FOUND=true
-              fi
-              popd
+          if [ -f frontend/package.json ]; then
+            cd frontend
+            if [ -f package-lock.json ]; then
+              npm ci
             else
-              echo "No package.json in $d — skipping"
+              npm install --no-audit --no-fund
             fi
-          done
-          echo "found=${FOUND}" >> $GITHUB_OUTPUT
 
-      - name: Upload frontend builds
-        if: steps.build-frontend.outputs.found == 'true'
+            npm run lint --if-present
+            npm test --if-present
+            npm run build --if-present
+          else
+            echo "No frontend found"
+          fi
+
+      - name: Upload frontend build
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-builds
-          path: |
-            frontend/build
-            "react-app tts-frontend/build"
+          name: frontend-build
+          path: frontend/dist
+          if-no-files-found: ignore
 
 # Example production deploy job (commented). Use OIDC, short-lived creds or repository secrets and a protected environment.
 # deploy:
