@@ -72,21 +72,30 @@ jobs:
           if-no-files-found: ignore
 
   frontend:
-    name: Frontend (Angular) — lint, test & build
+    name: Frontend (React) — lint, test & build
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check for frontend
+      - name: Check for React frontend
         id: check_frontend
         run: |
-          if [ -f frontend/package.json ]; then
+          if [ -f "react-app tts-frontend/package.json" ]; then
             echo "frontend_exists=true" >> $GITHUB_OUTPUT
           else
             echo "frontend_exists=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Debug listing when frontend not found
+        if: ${{ steps.check_frontend.outputs.frontend_exists == 'false' }}
+        run: |
+          echo "react-app tts-frontend not found at expected path. Repo root contents:"
+          pwd
+          ls -la
+          echo "Looking for directories that start with 'react' or 'tts':"
+          ls -la | grep -E "react|tts" || true
 
       - name: Setup Node
         if: ${{ steps.check_frontend.outputs.frontend_exists == 'true' }}
@@ -94,10 +103,11 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install & build frontend
+      - name: Install & build React frontend
         if: ${{ steps.check_frontend.outputs.frontend_exists == 'true' }}
+        working-directory: "react-app tts-frontend"
         run: |
-          cd frontend
+          # prefer npm ci when lockfile exists
           if [ -f package-lock.json ]; then
             npm ci
           else
@@ -113,7 +123,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-build
-          path: frontend/dist
+          path: "react-app tts-frontend/build/**"
           if-no-files-found: ignore
 
 # Example production deploy job (commented). Use OIDC, short-lived creds or repository secrets and a protected environment.
